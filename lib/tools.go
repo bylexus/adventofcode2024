@@ -83,6 +83,16 @@ func Abs[T constraints.Signed](a T) T {
 	return a
 }
 
+func Splice[T any](slice []T, index int) []T {
+	newSlice := make([]T, 0)
+	for i := 0; i < len(slice); i++ {
+		if i != index {
+			newSlice = append(newSlice, slice[i])
+		}
+	}
+	return newSlice
+}
+
 func Contains[T comparable](list []T, el T) bool {
 	for _, a := range list {
 		if a == el {

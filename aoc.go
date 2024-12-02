@@ -15,7 +15,7 @@ func main() {
 	tannenbaum()
 	var problem_map = map[string](func() problems.Problem){
 		"01": func() problems.Problem { p := problems.NewDay01(); return &p },
-		// "02": func() problems.Problem { p := problems.NewDay02(); return &p },
+		"02": func() problems.Problem { p := problems.NewDay02(); return &p },
 		// "03": func() problems.Problem { p := problems.NewDay03(); return &p },
 		// "04": func() problems.Problem { p := problems.NewDay04(); return &p },
 		// "05": func() problems.Problem { p := problems.NewDay05(); return &p },
@@ -78,7 +78,7 @@ func main() {
 func tannenbaum() {
 	var t = strings.Join([]string{
 		"\x1B[1;97m",
-		"Advent of Code 2022",
+		"Advent of Code 2024",
 		"--------------------",
 		"",
 		"        \x1B[1;93m*   *",
