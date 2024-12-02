@@ -16,12 +16,12 @@ func NewDayXX() DayXX {
 }
 
 func (d *DayXX) Title() string {
-	return "Day 01 - Calorie Counting"
+	return "Day XX - xxxxxx"
 }
 
 func (d *DayXX) Setup() {
-	// var lines = lib.ReadLines("data/01-test.txt")
-	var lines = lib.ReadLines("data/01-data.txt")
+	// var lines = lib.ReadLines("data/xx-test-data.txt")
+	var lines = lib.ReadLines("data/xx-data.txt")
 	for _, line := range lines {
 		line = line
 	}

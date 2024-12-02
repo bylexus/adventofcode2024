@@ -16,7 +16,7 @@ func main() {
 	var problem_map = map[string](func() problems.Problem){
 		"01": func() problems.Problem { p := problems.NewDay01(); return &p },
 		"02": func() problems.Problem { p := problems.NewDay02(); return &p },
-		// "03": func() problems.Problem { p := problems.NewDay03(); return &p },
+		"03": func() problems.Problem { p := problems.NewDay03(); return &p },
 		// "04": func() problems.Problem { p := problems.NewDay04(); return &p },
 		// "05": func() problems.Problem { p := problems.NewDay05(); return &p },
 		// "06": func() problems.Problem { p := problems.NewDay06(); return &p },
