@@ -9,14 +9,19 @@ import (
 	"time"
 
 	"alexi.ch/aoc/2024/problems"
+	"alexi.ch/aoc/2024/problems/day01"
+	"alexi.ch/aoc/2024/problems/day02"
+	"alexi.ch/aoc/2024/problems/day03"
+	"alexi.ch/aoc/2024/problems/day04"
 )
 
 func main() {
 	tannenbaum()
 	var problem_map = map[string](func() problems.Problem){
-		"01": func() problems.Problem { p := problems.NewDay01(); return &p },
-		"02": func() problems.Problem { p := problems.NewDay02(); return &p },
-		"03": func() problems.Problem { p := problems.NewDay03(); return &p },
+		"01": func() problems.Problem { p := day01.NewDay01(); return &p },
+		"02": func() problems.Problem { p := day02.NewDay02(); return &p },
+		"03": func() problems.Problem { p := day03.NewDay03(); return &p },
+		"04": func() problems.Problem { p := day04.NewDay04(); return &p },
 		// "04": func() problems.Problem { p := problems.NewDay04(); return &p },
 		// "05": func() problems.Problem { p := problems.NewDay05(); return &p },
 		// "06": func() problems.Problem { p := problems.NewDay06(); return &p },
@@ -42,10 +47,7 @@ func main() {
 		"playground": func() problems.Problem { p := problems.NewPlayground(); return &p },
 	}
 
-	var to_solve = make([]string, 0)
-	for _, arg := range os.Args[1:] {
-		to_solve = append(to_solve, arg)
-	}
+	var to_solve = os.Args[1:]
 
 	if len(to_solve) == 0 {
 		var keys = make([]string, 0)

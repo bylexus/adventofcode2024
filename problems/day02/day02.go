@@ -1,4 +1,4 @@
-package problems
+package day02
 
 import (
 	"fmt"
