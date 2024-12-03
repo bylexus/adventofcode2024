@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"alexi.ch/aoc/2024/lib"
+	"github.com/bylexus/go-stdlib/eerr"
 )
 
 type Day01 struct {
@@ -34,13 +35,9 @@ func (d *Day01) Setup() {
 		// fmt.Printf("line: %#v\n", matches)
 		if len(matches) == 3 {
 			leftNr, err := strconv.ParseUint(matches[1], 10, 64)
-			if err != nil {
-				panic(err)
-			}
+			eerr.PanicOnErr(err)
 			rightNumber, err := strconv.ParseUint(matches[2], 10, 64)
-			if err != nil {
-				panic(err)
-			}
+			eerr.PanicOnErr(err)
 			d.leftNumbers = append(d.leftNumbers, int(leftNr))
 			d.rightNumbers = append(d.rightNumbers, int(rightNumber))
 		}

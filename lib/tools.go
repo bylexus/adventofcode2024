@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"strconv"
 
+	"github.com/bylexus/go-stdlib/eerr"
 	"golang.org/x/exp/constraints"
 )
 
@@ -123,4 +125,10 @@ func LCM(a, b int64, integers ...int64) int64 {
 	}
 
 	return result
+}
+
+func StrToInt(s string) int {
+	n, err := strconv.Atoi(s)
+	eerr.PanicOnErr(err)
+	return n
 }

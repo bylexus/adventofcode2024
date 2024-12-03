@@ -39,6 +39,7 @@ func main() {
 		// "23": func() problems.Problem { p := problems.NewDay23(); return &p },
 		// "24": func() problems.Problem { p := problems.NewDay24(); return &p },
 		// "25": func() problems.Problem { p := problems.NewDay25(); return &p },
+		"playground": func() problems.Problem { p := problems.NewPlayground(); return &p },
 	}
 
 	var to_solve = make([]string, 0)

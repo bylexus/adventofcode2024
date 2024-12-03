@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"alexi.ch/aoc/2024/lib"
+	"github.com/bylexus/go-stdlib/eerr"
 )
 
 type Day02 struct {
@@ -31,9 +32,7 @@ func (d *Day02) Setup() {
 		report := make([]int, 0)
 		for _, nr := range nrs {
 			n, err := strconv.Atoi(nr)
-			if err != nil {
-				panic(err)
-			}
+			eerr.PanicOnErr(err)
 			report = append(report, n)
 		}
 		d.reports = append(d.reports, report)
