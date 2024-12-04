@@ -18,32 +18,10 @@ import (
 func main() {
 	tannenbaum()
 	var problem_map = map[string](func() problems.Problem){
-		"01": func() problems.Problem { p := day01.NewDay01(); return &p },
-		"02": func() problems.Problem { p := day02.NewDay02(); return &p },
-		"03": func() problems.Problem { p := day03.NewDay03(); return &p },
-		"04": func() problems.Problem { p := day04.NewDay04(); return &p },
-		// "04": func() problems.Problem { p := problems.NewDay04(); return &p },
-		// "05": func() problems.Problem { p := problems.NewDay05(); return &p },
-		// "06": func() problems.Problem { p := problems.NewDay06(); return &p },
-		// "07": func() problems.Problem { p := problems.NewDay07(); return &p },
-		// "08": func() problems.Problem { p := problems.NewDay08(); return &p },
-		// "09": func() problems.Problem { p := problems.NewDay09(); return &p },
-		// "10": func() problems.Problem { p := problems.NewDay10(); return &p },
-		// "11": func() problems.Problem { p := problems.NewDay11(); return &p },
-		// "12": func() problems.Problem { p := problems.NewDay12(); return &p },
-		// "13": func() problems.Problem { p := problems.NewDay13(); return &p },
-		// "14": func() problems.Problem { p := problems.NewDay14(); return &p },
-		// "15": func() problems.Problem { p := problems.NewDay15(); return &p },
-		// "16": func() problems.Problem { p := problems.NewDay16(); return &p },
-		// "17": func() problems.Problem { p := problems.NewDay17(); return &p },
-		// "18": func() problems.Problem { p := problems.NewDay18(); return &p },
-		// "19": func() problems.Problem { p := problems.NewDay19(); return &p },
-		// "20": func() problems.Problem { p := problems.NewDay20(); return &p },
-		// "21": func() problems.Problem { p := problems.NewDay21(); return &p },
-		// "22": func() problems.Problem { p := problems.NewDay22(); return &p },
-		// "23": func() problems.Problem { p := problems.NewDay23(); return &p },
-		// "24": func() problems.Problem { p := problems.NewDay24(); return &p },
-		// "25": func() problems.Problem { p := problems.NewDay25(); return &p },
+		"01":         func() problems.Problem { p := day01.NewDay01(); return &p },
+		"02":         func() problems.Problem { p := day02.NewDay02(); return &p },
+		"03":         func() problems.Problem { p := day03.NewDay03(); return &p },
+		"04":         func() problems.Problem { p := day04.NewDay04(); return &p },
 		"playground": func() problems.Problem { p := problems.NewPlayground(); return &p },
 	}
 
@@ -61,8 +39,8 @@ func main() {
 	// Run solving all problems  in parallel:
 	var start = time.Now()
 	var wg sync.WaitGroup
+	wg.Add(len(to_solve))
 	for _, p := range to_solve {
-		wg.Add(1)
 		go func(probKey string) {
 			defer wg.Done()
 			var prob = problem_map[probKey]
@@ -74,7 +52,7 @@ func main() {
 		}(p)
 	}
 	wg.Wait()
-	var duration = time.Now().Sub(start)
+	var duration = time.Since(start)
 	fmt.Printf("\n\nFull runtime: %s\n\n", duration)
 }
 
@@ -105,5 +83,5 @@ func tannenbaum() {
 		"       #######",
 		"\x1B[0m",
 	}, "\n")
-	fmt.Printf(t)
+	fmt.Print(t)
 }
