@@ -11,7 +11,7 @@ type DayXX struct {
 	s2 uint64
 }
 
-func NewDayXX() DayXX {
+func New() DayXX {
 	return DayXX{s1: 0, s2: 0}
 }
 
