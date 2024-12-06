@@ -12,10 +12,10 @@ import (
 type Rules map[int][]int
 
 type Day05 struct {
-	followers  Rules
-	preceeders Rules
+	followers  Rules // element key's followers list: list of elements that come after the key doc
+	preceeders Rules // element key's preceeders list: list of elements that come before the key doc
 	updates    [][]int
-	errorRules [][]int
+	errorRules [][]int // wrong updates, identified in solution 1
 	s1         int
 	s2         int
 }

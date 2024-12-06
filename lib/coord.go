@@ -27,3 +27,7 @@ func (c Coord) String() string {
 func (c Coord) Manhattan(o Coord) int {
 	return Abs(c.X-o.X) + Abs(c.Y-o.Y) + Abs(c.Z-o.Z)
 }
+
+func (c Coord) Add(o Coord) Coord {
+	return NewCoord3D(c.X+o.X, c.Y+o.Y, c.Z+o.Z)
+}
