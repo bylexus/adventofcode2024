@@ -108,38 +108,43 @@ func (d *Day06) SolveProblem1() {
 func (d *Day06) SolveProblem2() {
 	d.s2 = 0
 
+	// try all possible obstacle positions in parallel, using
+	// goroutines
 	wg := sync.WaitGroup{}
 	counter := atomic.Int64{}
-	for y := 0; y < d.initialMap.height; y++ {
-		for x := 0; x < d.initialMap.width; x++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				theMap := d.initialMap
-				theMap.theMap = maps.Clone(d.initialMap.theMap)
-				obstacle := lib.NewCoord2D(x, y)
-				if theMap.guardStart == obstacle {
-					return
-				}
-				if theMap.theMap[obstacle].tile == '#' {
-					return
-				}
-				theMap.theMap[obstacle] = Tile{tile: '#'}
-				d.guardMap = theMap
-				res := 0
 
-				for {
-					res = d.walkInMap(&theMap)
-					if res != 0 {
-						break
-					}
+	// realisation: we only have to place obstacles in the path
+	// that was used in the 1st part: he reaches only the
+	// tiles that he visited in the 1st part, so no need to
+	// place obstacles in the rest of the map
+	for obstacleCoord := range d.guardMap.theMap {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			theMap := d.initialMap
+			theMap.theMap = maps.Clone(d.initialMap.theMap)
+			if theMap.guardStart == obstacleCoord {
+				return
+			}
+			if theMap.theMap[obstacleCoord].tile == '#' {
+				return
+			}
+			theMap.theMap[obstacleCoord] = Tile{tile: '#'}
+			res := 0
+
+			for {
+				res = d.walkInMap(&theMap)
+				if res != 0 {
+					break
 				}
-				if res == RES_LOOP {
-					counter.Add(1)
-				}
-			}()
-		}
+			}
+			if res == RES_LOOP {
+				counter.Add(1)
+			}
+		}()
+
 	}
+
 	wg.Wait()
 	d.s2 = int(counter.Load())
 	// fmt.Printf("%v\n", d.guardMap)
