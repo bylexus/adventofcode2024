@@ -3,6 +3,8 @@ package day06
 import (
 	"fmt"
 	"maps"
+	"sync"
+	"sync/atomic"
 
 	"alexi.ch/aoc/2024/lib"
 )
@@ -92,7 +94,7 @@ func (d *Day06) Setup() {
 
 func (d *Day06) SolveProblem1() {
 	d.s1 = 0
-	for d.walkInMap() == 0 {
+	for d.walkInMap(&d.guardMap) == 0 {
 		//
 	}
 	for _, r := range d.guardMap.theMap {
@@ -106,32 +108,40 @@ func (d *Day06) SolveProblem1() {
 func (d *Day06) SolveProblem2() {
 	d.s2 = 0
 
+	wg := sync.WaitGroup{}
+	counter := atomic.Int64{}
 	for y := 0; y < d.initialMap.height; y++ {
 		for x := 0; x < d.initialMap.width; x++ {
-			theMap := d.initialMap
-			theMap.theMap = maps.Clone(d.initialMap.theMap)
-			obstacle := lib.NewCoord2D(x, y)
-			if theMap.guardStart == obstacle {
-				continue
-			}
-			if theMap.theMap[obstacle].tile == '#' {
-				continue
-			}
-			theMap.theMap[obstacle] = Tile{tile: '#'}
-			d.guardMap = theMap
-			res := 0
-
-			for {
-				res = d.walkInMap()
-				if res != 0 {
-					break
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				theMap := d.initialMap
+				theMap.theMap = maps.Clone(d.initialMap.theMap)
+				obstacle := lib.NewCoord2D(x, y)
+				if theMap.guardStart == obstacle {
+					return
 				}
-			}
-			if res == RES_LOOP {
-				d.s2++
-			}
+				if theMap.theMap[obstacle].tile == '#' {
+					return
+				}
+				theMap.theMap[obstacle] = Tile{tile: '#'}
+				d.guardMap = theMap
+				res := 0
+
+				for {
+					res = d.walkInMap(&theMap)
+					if res != 0 {
+						break
+					}
+				}
+				if res == RES_LOOP {
+					counter.Add(1)
+				}
+			}()
 		}
 	}
+	wg.Wait()
+	d.s2 = int(counter.Load())
 	// fmt.Printf("%v\n", d.guardMap)
 
 }
@@ -144,21 +154,21 @@ func (d *Day06) Solution2() string {
 	return fmt.Sprintf("%d", d.s2)
 }
 
-func (d *Day06) walkInMap() int {
-	actTile := d.guardMap.theMap[d.guardMap.guardPos]
-	actDir := d.guardMap.guardDir
-	newPos := d.guardMap.guardPos.Add(dirVec[actDir])
+func (d *Day06) walkInMap(guardMap *Map) int {
+	actTile := guardMap.theMap[guardMap.guardPos]
+	actDir := guardMap.guardDir
+	newPos := guardMap.guardPos.Add(dirVec[actDir])
 
 	// out of the map? stop:
-	if newPos.X < 0 || newPos.Y < 0 || newPos.X >= d.guardMap.width || newPos.Y >= d.guardMap.height {
+	if newPos.X < 0 || newPos.Y < 0 || newPos.X >= guardMap.width || newPos.Y >= guardMap.height {
 		return RES_OUT_OF_MAP
 	}
 
-	newPosTile := d.guardMap.theMap[newPos]
+	newPosTile := guardMap.theMap[newPos]
 	if newPosTile.tile == '#' {
-		d.guardMap.guardDir = d.turnRightDir(d.guardMap.guardDir)
-		actTile.dirsSeen = append(actTile.dirsSeen, d.guardMap.guardDir)
-		d.guardMap.theMap[d.guardMap.guardPos] = actTile
+		guardMap.guardDir = d.turnRightDir(guardMap.guardDir)
+		actTile.dirsSeen = append(actTile.dirsSeen, guardMap.guardDir)
+		guardMap.theMap[guardMap.guardPos] = actTile
 	} else {
 		// loop detection
 		if lib.Contains(newPosTile.dirsSeen, actDir) {
@@ -166,9 +176,9 @@ func (d *Day06) walkInMap() int {
 		}
 
 		newPosTile.tile = 'X'
-		newPosTile.dirsSeen = append(newPosTile.dirsSeen, d.guardMap.guardDir)
-		d.guardMap.theMap[newPos] = newPosTile
-		d.guardMap.guardPos = newPos
+		newPosTile.dirsSeen = append(newPosTile.dirsSeen, guardMap.guardDir)
+		guardMap.theMap[newPos] = newPosTile
+		guardMap.guardPos = newPos
 
 	}
 	return 0
