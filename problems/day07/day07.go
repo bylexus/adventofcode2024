@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"alexi.ch/aoc/2024/lib"
-	"github.com/bylexus/go-stdlib/efunctional"
 )
 
 type Equation struct {
@@ -20,14 +19,14 @@ func (e Equation) Clone() Equation {
 }
 
 type Day07 struct {
-	permutations map[int][][]string
-	equations    []Equation
-	s1           int
-	s2           int
+	equations []Equation
+	s1        int
+	goodS1Eqs []int
+	s2        int
 }
 
 func New() Day07 {
-	return Day07{s1: 0, s2: 0, permutations: make(map[int][][]string), equations: make([]Equation, 0)}
+	return Day07{s1: 0, s2: 0, equations: make([]Equation, 0)}
 }
 
 func (d *Day07) Title() string {
@@ -53,11 +52,10 @@ func (d *Day07) Setup() {
 
 func (d *Day07) SolveProblem1() {
 	d.s1 = 0
-	// perms := d.getPermutations(3, []string{"+", "*"})
-	// fmt.Printf("%#v\n", perms)
+	permFunc := lib.PermutationsBuilder([]string{"+", "*"})
 outer:
-	for _, eq := range d.equations {
-		perms := d.getPermutations(len(eq.operands)-1, []string{"+", "*"})
+	for eqI, eq := range d.equations {
+		perms := permFunc(len(eq.operands) - 1)
 		for _, perm := range perms {
 			res := eq.operands[0]
 			for i := 1; i < len(eq.operands); i++ {
@@ -71,6 +69,7 @@ outer:
 			}
 			if res == eq.result {
 				d.s1 += res
+				d.goodS1Eqs = append(d.goodS1Eqs, eqI)
 				continue outer
 			}
 		}
@@ -78,11 +77,14 @@ outer:
 }
 
 func (d *Day07) SolveProblem2() {
-	d.s2 = 0
-	d.permutations = make(map[int][][]string)
+	d.s2 = d.s1
+	permFunc := lib.PermutationsBuilder([]string{"||", "*", "+"})
 outer:
-	for _, eq := range d.equations {
-		perms := d.getPermutations(len(eq.operands)-1, []string{"+", "*", "||"})
+	for eqI, eq := range d.equations {
+		if slices.Contains(d.goodS1Eqs, eqI) {
+			continue
+		}
+		perms := permFunc(len(eq.operands) - 1)
 		for _, perm := range perms {
 			res := eq.operands[0]
 			for i := 1; i < len(eq.operands); i++ {
@@ -110,51 +112,4 @@ func (d *Day07) Solution1() string {
 
 func (d *Day07) Solution2() string {
 	return fmt.Sprintf("%d", d.s2)
-}
-
-func (d *Day07) getPermutations(n int, values []string) [][]string {
-	res := make([][]string, 0)
-	if n <= 0 {
-		return res
-	}
-
-	if perms, ok := d.permutations[n]; ok {
-		return perms
-	}
-
-	singlePerms := make([]string, 0, len(values))
-	singlePerms = slices.Concat(singlePerms, values)
-
-	if n == 1 {
-		for _, perm := range values {
-			res = append(res, []string{perm})
-		}
-		d.permutations[n] = res
-	} else {
-		prevPerms := d.getPermutations(n-1, values)
-		for _, perm := range singlePerms {
-			for _, prevPerm := range prevPerms {
-				newPerm := slices.Concat(prevPerm, []string{perm})
-				res = append(res, newPerm)
-			}
-		}
-		d.permutations[n] = res
-	}
-
-	return res
-}
-
-func concatEq(eq Equation, ops []string) (Equation, []string) {
-	if idx := slices.Index(ops, "||"); idx >= 0 {
-		eq = eq.Clone()
-		ops = slices.Clone(ops)
-		eq.operands[idx] = lib.StrToInt(fmt.Sprintf("%d%d", eq.operands[idx], eq.operands[idx+1]))
-		eq.operands[idx+1] = -1
-		ops[idx] = "-1"
-		eq.operands = efunctional.Filter(eq.operands, func(i int) bool { return i != -1 })
-		ops = efunctional.Filter(ops, func(i string) bool { return i != "-1" })
-		return concatEq(eq, ops)
-	}
-
-	return eq, ops
 }

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"slices"
 	"strconv"
 
 	"github.com/bylexus/go-stdlib/eerr"
@@ -131,4 +132,52 @@ func StrToInt(s string) int {
 	n, err := strconv.Atoi(s)
 	eerr.PanicOnErr(err)
 	return n
+}
+
+// Returns a function that returns all permutations of the given values,
+// using a memoization cache to avoid duplicate work:
+// Repeated calls to the returned function will be fetched from the cache,
+// as well as sub-sequently used part-permutation.
+//
+// Usage:
+//
+//	permsBuilder := PermutationsBuilder([]string{"A","B"})
+//	perms := permsBuilder(3) // [["A","A"], ["A","B"], ["B","A"], ["B","B"]]
+func PermutationsBuilder(values []string) func(n int) [][]string {
+	memorizedPerms := make(map[int][][]string)
+
+	var permFunc func(n int) [][]string
+
+	permFunc = func(n int) [][]string {
+		res := make([][]string, 0)
+		if n <= 0 {
+			return res
+		}
+
+		if perms, ok := memorizedPerms[n]; ok {
+			return perms
+		}
+
+		singlePerms := make([]string, 0, len(values))
+		singlePerms = slices.Concat(singlePerms, values)
+
+		if n == 1 {
+			for _, perm := range values {
+				res = append(res, []string{perm})
+			}
+			memorizedPerms[n] = res
+		} else {
+			prevPerms := permFunc(n - 1)
+			for _, perm := range singlePerms {
+				for _, prevPerm := range prevPerms {
+					newPerm := slices.Concat(prevPerm, []string{perm})
+					res = append(res, newPerm)
+				}
+			}
+			memorizedPerms[n] = res
+		}
+
+		return res
+	}
+	return permFunc
 }
