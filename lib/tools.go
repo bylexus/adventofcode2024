@@ -6,6 +6,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"sync"
 
 	"github.com/bylexus/go-stdlib/eerr"
 	"golang.org/x/exp/constraints"
@@ -153,6 +154,7 @@ func PermutationsBuilder[T any](values []T) func(n int) [][]T {
 	memorizedPerms := make(map[int][][]T)
 
 	var permFunc func(n int) [][]T
+	var mutex = sync.Mutex{}
 
 	permFunc = func(n int) [][]T {
 		res := make([][]T, 0)
@@ -160,9 +162,12 @@ func PermutationsBuilder[T any](values []T) func(n int) [][]T {
 			return res
 		}
 
+		mutex.Lock()
 		if perms, ok := memorizedPerms[n]; ok {
+			mutex.Unlock()
 			return perms
 		}
+		mutex.Unlock()
 
 		singlePerms := make([]T, 0, len(values))
 		singlePerms = slices.Concat(singlePerms, values)
@@ -171,7 +176,9 @@ func PermutationsBuilder[T any](values []T) func(n int) [][]T {
 			for _, perm := range values {
 				res = append(res, []T{perm})
 			}
+			mutex.Lock()
 			memorizedPerms[n] = res
+			mutex.Unlock()
 		} else {
 			prevPerms := permFunc(n - 1)
 			for _, perm := range singlePerms {
@@ -180,7 +187,9 @@ func PermutationsBuilder[T any](values []T) func(n int) [][]T {
 					res = append(res, newPerm)
 				}
 			}
+			mutex.Lock()
 			memorizedPerms[n] = res
+			mutex.Unlock()
 		}
 
 		return res

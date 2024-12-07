@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
+	"sync/atomic"
 
 	"alexi.ch/aoc/2024/lib"
 )
@@ -79,31 +81,41 @@ outer:
 func (d *Day07) SolveProblem2() {
 	d.s2 = d.s1
 	permFunc := lib.PermutationsBuilder([]string{"||", "*", "+"})
-outer:
+	wg := sync.WaitGroup{}
+	sum := atomic.Uint64{}
 	for eqI, eq := range d.equations {
 		if slices.Contains(d.goodS1Eqs, uint64(eqI)) {
 			continue
 		}
-		perms := permFunc(len(eq.operands) - 1)
-		for _, perm := range perms {
-			res := eq.operands[0]
-			for i := 1; i < len(eq.operands); i++ {
-				op := perm[i-1]
-				nr := eq.operands[i]
-				if op == "+" {
-					res += nr
-				} else if op == "||" {
-					res = lib.StrToUint64(fmt.Sprintf("%d%d", res, nr))
-				} else {
-					res *= nr
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			perms := permFunc(len(eq.operands) - 1)
+			for _, perm := range perms {
+				res := eq.operands[0]
+				for i := 1; i < len(eq.operands); i++ {
+					op := perm[i-1]
+					nr := eq.operands[i]
+					if op == "+" {
+						res += nr
+					} else if op == "||" {
+						res = lib.StrToUint64(fmt.Sprintf("%d%d", res, nr))
+					} else {
+						res *= nr
+					}
+				}
+				if res == eq.result {
+					sum.Add(res)
+					// d.s2 += res
+					// continue outer
+					return
 				}
 			}
-			if res == eq.result {
-				d.s2 += res
-				continue outer
-			}
-		}
+		}()
 	}
+	wg.Wait()
+	d.s2 = d.s1 + sum.Load()
 }
 
 func (d *Day07) Solution1() string {
