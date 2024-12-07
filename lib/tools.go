@@ -134,6 +134,12 @@ func StrToInt(s string) int {
 	return n
 }
 
+func StrToUint64(s string) uint64 {
+	n, err := strconv.ParseUint(s, 10, 64)
+	eerr.PanicOnErr(err)
+	return n
+}
+
 // Returns a function that returns all permutations of the given values,
 // using a memoization cache to avoid duplicate work:
 // Repeated calls to the returned function will be fetched from the cache,
@@ -143,13 +149,13 @@ func StrToInt(s string) int {
 //
 //	permsBuilder := PermutationsBuilder([]string{"A","B"})
 //	perms := permsBuilder(3) // [["A","A"], ["A","B"], ["B","A"], ["B","B"]]
-func PermutationsBuilder(values []string) func(n int) [][]string {
-	memorizedPerms := make(map[int][][]string)
+func PermutationsBuilder[T any](values []T) func(n int) [][]T {
+	memorizedPerms := make(map[int][][]T)
 
-	var permFunc func(n int) [][]string
+	var permFunc func(n int) [][]T
 
-	permFunc = func(n int) [][]string {
-		res := make([][]string, 0)
+	permFunc = func(n int) [][]T {
+		res := make([][]T, 0)
 		if n <= 0 {
 			return res
 		}
@@ -158,19 +164,19 @@ func PermutationsBuilder(values []string) func(n int) [][]string {
 			return perms
 		}
 
-		singlePerms := make([]string, 0, len(values))
+		singlePerms := make([]T, 0, len(values))
 		singlePerms = slices.Concat(singlePerms, values)
 
 		if n == 1 {
 			for _, perm := range values {
-				res = append(res, []string{perm})
+				res = append(res, []T{perm})
 			}
 			memorizedPerms[n] = res
 		} else {
 			prevPerms := permFunc(n - 1)
 			for _, perm := range singlePerms {
 				for _, prevPerm := range prevPerms {
-					newPerm := slices.Concat(prevPerm, []string{perm})
+					newPerm := slices.Concat(prevPerm, []T{perm})
 					res = append(res, newPerm)
 				}
 			}

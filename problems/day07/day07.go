@@ -10,8 +10,8 @@ import (
 )
 
 type Equation struct {
-	result   int
-	operands []int
+	result   uint64
+	operands []uint64
 }
 
 func (e Equation) Clone() Equation {
@@ -20,9 +20,9 @@ func (e Equation) Clone() Equation {
 
 type Day07 struct {
 	equations []Equation
-	s1        int
-	goodS1Eqs []int
-	s2        int
+	s1        uint64
+	goodS1Eqs []uint64
+	s2        uint64
 }
 
 func New() Day07 {
@@ -40,9 +40,9 @@ func (d *Day07) Setup() {
 	for _, line := range lines {
 		matches := matcher.FindStringSubmatch(line)
 		if matches != nil {
-			res := lib.StrToInt(matches[1])
+			res := lib.StrToUint64(matches[1])
 			nrstr := strings.Split(strings.Trim(matches[2], " "), " ")
-			nrs := lib.Map(&nrstr, lib.StrToInt)
+			nrs := lib.Map(&nrstr, lib.StrToUint64)
 			d.equations = append(d.equations, Equation{result: res, operands: nrs})
 		}
 
@@ -69,7 +69,7 @@ outer:
 			}
 			if res == eq.result {
 				d.s1 += res
-				d.goodS1Eqs = append(d.goodS1Eqs, eqI)
+				d.goodS1Eqs = append(d.goodS1Eqs, uint64(eqI))
 				continue outer
 			}
 		}
@@ -81,7 +81,7 @@ func (d *Day07) SolveProblem2() {
 	permFunc := lib.PermutationsBuilder([]string{"||", "*", "+"})
 outer:
 	for eqI, eq := range d.equations {
-		if slices.Contains(d.goodS1Eqs, eqI) {
+		if slices.Contains(d.goodS1Eqs, uint64(eqI)) {
 			continue
 		}
 		perms := permFunc(len(eq.operands) - 1)
@@ -93,7 +93,7 @@ outer:
 				if op == "+" {
 					res += nr
 				} else if op == "||" {
-					res = lib.StrToInt(fmt.Sprintf("%d%d", res, nr))
+					res = lib.StrToUint64(fmt.Sprintf("%d%d", res, nr))
 				} else {
 					res *= nr
 				}
