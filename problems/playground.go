@@ -19,10 +19,7 @@ func (d *Playground) Setup() {
 }
 
 func (d *Playground) SolveProblem1() {
-	sl := []int{1, 2, 3}
-	fmt.Printf("%#v\n", sl)
-	modSlice(sl, 1, 42)
-	fmt.Printf("%#v\n", sl)
+	// fn := lib.Memoize(func(a int) int { return 5 })
 }
 
 func (d *Playground) SolveProblem2() {

@@ -7,9 +7,12 @@ import (
 )
 
 type Day08 struct {
-	width     int
-	height    int
-	antennas  map[rune][]lib.Coord
+	width  int
+	height int
+	// keep all antennas as map of rune to coordinates:
+	// this allows easy access to all coords for a given antenna type
+	antennas map[rune][]lib.Coord
+	// keep track of the antinodes, mark each coordinate with the number of times it was seen
 	antinotes map[lib.Coord]int
 	s1        int
 	s2        int
@@ -40,6 +43,10 @@ func (d *Day08) Setup() {
 
 func (d *Day08) SolveProblem1() {
 	d.s1 = 0
+	// just loop over all coords of the same antenna(s),
+	// and calculate the antinodes location: Go through all coords,
+	// and calc the double distance from A to B, and mark it in the
+	// antinodes map:
 	for _, coords := range d.antennas {
 		for i := 0; i < len(coords); i++ {
 			for j := 0; j < len(coords); j++ {
@@ -66,6 +73,11 @@ func (d *Day08) SolveProblem2() {
 	d.s2 = 0
 	d.antinotes = make(map[lib.Coord]int)
 
+	// again just loop over all coords of the same antenna(s),
+	// and calculate the antinodes location: Go through all coords,
+	// and calc ALL the distances from A to B, until it is not on the map anymore, and mark it in the:
+	//
+	// seems way too easy for a day 08 problem?
 	for _, coords := range d.antennas {
 		for i := 0; i < len(coords); i++ {
 			for j := 0; j < len(coords); j++ {

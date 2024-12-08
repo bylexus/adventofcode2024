@@ -141,58 +141,60 @@ func StrToUint64(s string) uint64 {
 	return n
 }
 
-// Returns a function that returns all permutations of the given values,
-// using a memoization cache to avoid duplicate work:
-// Repeated calls to the returned function will be fetched from the cache,
-// as well as sub-sequently used part-permutation.
+// Returns all permutations of a given set of values, for a given length.
+// For example all combinations of "A" and "B" for a given length of 3 (e.g. "AAA", "ABA" etc.)
 //
-// Usage:
+// Example:
 //
-//	permsBuilder := PermutationsBuilder([]string{"A","B"})
-//	perms := permsBuilder(3) // [["A","A"], ["A","B"], ["B","A"], ["B","B"]]
-func PermutationsBuilder[T any](values []T) func(n int) [][]T {
-	memorizedPerms := make(map[int][][]T)
-
-	var permFunc func(n int) [][]T
-	var mutex = sync.Mutex{}
-
-	permFunc = func(n int) [][]T {
-		res := make([][]T, 0)
-		if n <= 0 {
-			return res
-		}
-
-		mutex.Lock()
-		if perms, ok := memorizedPerms[n]; ok {
-			mutex.Unlock()
-			return perms
-		}
-		mutex.Unlock()
-
-		singlePerms := make([]T, 0, len(values))
-		singlePerms = slices.Concat(singlePerms, values)
-
-		if n == 1 {
-			for _, perm := range values {
-				res = append(res, []T{perm})
-			}
-			mutex.Lock()
-			memorizedPerms[n] = res
-			mutex.Unlock()
-		} else {
-			prevPerms := permFunc(n - 1)
-			for _, perm := range singlePerms {
-				for _, prevPerm := range prevPerms {
-					newPerm := slices.Concat(prevPerm, []T{perm})
-					res = append(res, newPerm)
-				}
-			}
-			mutex.Lock()
-			memorizedPerms[n] = res
-			mutex.Unlock()
-		}
-
+//	perms := Permutations([]string{"A", "B"}, 3)
+//	// -> [["A", "A", "A"], ["A", "A", "B"], ["A", "B", "A"], ["A", "B", "B"], ["B", "A", "A"], ["B", "A", "B"], ["B", "B", "A"], ["B", "B", "B"]]
+func Permutations[T any](values []T, length int) [][]T {
+	res := make([][]T, 0)
+	if length <= 0 {
 		return res
 	}
-	return permFunc
+
+	singlePerms := make([]T, 0, len(values))
+	singlePerms = slices.Concat(singlePerms, values)
+
+	if length == 1 {
+		for _, perm := range values {
+			res = append(res, []T{perm})
+		}
+	} else {
+		prevPerms := Permutations(values, length-1)
+		for _, perm := range singlePerms {
+			for _, prevPerm := range prevPerms {
+				newPerm := slices.Concat(prevPerm, []T{perm})
+				res = append(res, newPerm)
+			}
+		}
+	}
+
+	return res
+}
+
+// Memoization wrapper for a function with 1 argument and 1 return value:
+// It returns a function with the same signature as the given function.
+// If this function is called, the result will be memoized, so subsequent calls to
+// the function with ther same argument returns a cached result.
+//
+// The function is also thread-safe, so you can use it in a goroutine context.
+func Memoize[T comparable, U any](fn func(a T) U) func(a T) U {
+	cache := make(map[T]U)
+	mutex := sync.Mutex{}
+	return func(a T) U {
+		key := a
+		mutex.Lock()
+		if v, ok := cache[key]; ok {
+			mutex.Unlock()
+			return v
+		}
+		mutex.Unlock()
+		res := fn(a)
+		mutex.Lock()
+		cache[key] = res
+		mutex.Unlock()
+		return res
+	}
 }

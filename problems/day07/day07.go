@@ -54,7 +54,9 @@ func (d *Day07) Setup() {
 
 func (d *Day07) SolveProblem1() {
 	d.s1 = 0
-	permFunc := lib.PermutationsBuilder([]string{"+", "*"})
+	permFunc := lib.Memoize(func(n int) [][]string {
+		return lib.Permutations([]string{"*", "+"}, n)
+	})
 outer:
 	for eqI, eq := range d.equations {
 		perms := permFunc(len(eq.operands) - 1)
@@ -80,7 +82,11 @@ outer:
 
 func (d *Day07) SolveProblem2() {
 	d.s2 = d.s1
-	permFunc := lib.PermutationsBuilder([]string{"||", "*", "+"})
+	// permFunc := lib.PermutationsBuilder([]string{"||", "*", "+"})
+	permFunc := lib.Memoize(func(n int) [][]string {
+		return lib.Permutations([]string{"||", "*", "+"}, n)
+	})
+
 	wg := sync.WaitGroup{}
 	sum := atomic.Uint64{}
 	for eqI, eq := range d.equations {
