@@ -60,58 +60,65 @@ func (d *Day09) Setup() {
 
 func (d *Day09) SolveProblem1() {
 	d.s1 = 0
-	freeBlockIdx := 0
+	// freeBlockIdx := 0
 	for blockIdx := len(d.file) - 1; blockIdx >= 0; blockIdx-- {
 		blk := d.file[blockIdx]
 		if blk.ftype == FTYPE_EMPTY {
 			continue
 		}
-		freeBlockIdx := d.findNextFreeBlock(freeBlockIdx, 1)
+		// find free 1-block from the beginning of the file:
+		freeBlockIdx := d.findNextFreeBlock(1)
 
+		// no free space? we're done.
 		if blockIdx <= freeBlockIdx {
 			break
 		}
 
 		// swap file block with empty block:
 		d.file[freeBlockIdx], d.file[blockIdx] = d.file[blockIdx], d.file[freeBlockIdx]
-		// fmt.Println(d.FileToStr(d.file))
 	}
+
+	// calc solution
 	for i, fInfo := range d.file {
 		if fInfo.ftype == FTYPE_FILE {
 			d.s1 += fInfo.id * i
 		}
 	}
-	// fmt.Println(d.FileToStr(d.file))
 }
 
 func (d *Day09) SolveProblem2() {
 	d.s2 = 0
 	d.file = d.initialFile
 
-	// fmt.Println(d.FileToStr(d.file))
 	for blockIdx := len(d.file) - 1; blockIdx >= 0; blockIdx-- {
 		blk := d.file[blockIdx]
 		if blk.ftype == FTYPE_EMPTY {
 			continue
 		}
+		// now, blockIdx stands at the END of a file block
 
-		freeBlockIdx := d.findNextFreeBlock(0, blk.size)
+		// find free block of the length of the actual block size:
+		freeBlockIdx := d.findNextFreeBlock(blk.size)
 
+		// if the next free block is behind our current block, we're skipping the whole block. No free space before the block.
 		if blockIdx <= freeBlockIdx {
+			// +1 because our loop decreases blockIdx again
 			blockIdx = blockIdx - blk.size + 1
 			continue
 		}
 
-		// swap whole file to empty block:
+		// swap all file blocks to empty block:
 		for i := 0; i < blk.size; i++ {
 			freeIdx := freeBlockIdx + i
 			fileIdx := blockIdx - i
 			d.file[freeIdx], d.file[fileIdx] = d.file[fileIdx], d.file[freeIdx]
 		}
+		// +1 because our loop decreases blockIdx again
 		blockIdx = blockIdx - blk.size + 1
 
 	}
-	// fmt.Println(d.FileToStr(d.file))
+
+	// calc solution:
 	for i, fInfo := range d.file {
 		if fInfo.ftype == FTYPE_FILE {
 			d.s2 += fInfo.id * i
@@ -139,20 +146,26 @@ func (d *Day09) FileToStr(f []*FInfo) string {
 	return out
 }
 
-func (d *Day09) findNextFreeBlock(idx int, length int) int {
+func (d *Day09) findNextFreeBlock(length int) int {
+	// searches from the beginning of the file for a free block of the given length,
+	// returns the start index of the free block
 outer:
-	for i := idx; i < len(d.file); i++ {
+	for i := 0; i < len(d.file); i++ {
 		if d.file[i].ftype == FTYPE_EMPTY {
+			// we found the first empty block. Now see if it is big enough:
 			emptyStart := i
 			l := length
 			for ; l > 0; l-- {
 				if i < len(d.file) && d.file[i].ftype == FTYPE_FILE {
+					// nope, too short
 					continue outer
 				}
 				i++
 			}
+			// good, block is big enough. Return start index.
 			return emptyStart
 		}
 	}
+	// no free block found, return the file length to indicate we have found nothing:
 	return len(d.file)
 }
