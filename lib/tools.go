@@ -12,6 +12,13 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
+var MOVE_VEC_2D_4DIRS = [][]int{
+	{0, 1},
+	{0, -1},
+	{1, 0},
+	{-1, 0},
+}
+
 func Check(e error) {
 	if e != nil {
 		panic(e)
