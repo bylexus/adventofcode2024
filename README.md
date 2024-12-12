@@ -80,3 +80,11 @@ var dayXX = problems.NewDayXX()
 problem_map["XX"] = &dayXX
 ```
 
+
+## Some Notes to certain days
+
+### Day 12: Flood-Fill vizualization
+
+Day 12 was a flood-fill problem. I visualized the areas to fill:
+
+![day12](./day12-flood-the-garden.png)
