@@ -2,8 +2,12 @@ package day12
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"alexi.ch/aoc/2024/lib"
+	"github.com/bylexus/go-stdlib/eerr"
+	"github.com/gdamore/tcell/v2"
 )
 
 type FenceMap struct {
@@ -23,6 +27,7 @@ type Plot struct {
 
 type Region struct {
 	id    rune
+	color tcell.Color
 	plots []*Plot
 }
 
@@ -87,6 +92,16 @@ func (d *Day12) SolveProblem1() {
 	// when a new plot is found, we start a new region, and flood-fill it until done.
 	// Then we search for the next area on unvisited patches.
 
+	s, err := tcell.NewScreen()
+	eerr.PanicOnErr(err)
+	s.Init()
+	defStyle := tcell.StyleDefault.Background(tcell.NewRGBColor(50, 50, 50)).Foreground(tcell.ColorDarkGray)
+	// s.SetStyle(defStyle)
+
+	for _, plot := range d.garden {
+		s.SetContent(plot.coords.X, plot.coords.Y, ' ', nil, defStyle)
+	}
+
 	for y := 0; y < d.height; y++ {
 		for x := 0; x < d.width; x++ {
 			actPlot := d.garden[lib.NewCoord2D(x, y)]
@@ -95,12 +110,23 @@ func (d *Day12) SolveProblem1() {
 			}
 			// mark a whole region:
 			// as a side-effect, also count the plot fences and on which side they are:
-			d.floodFill(actPlot)
+			d.floodFill(actPlot, s)
 		}
 	}
 	for _, r := range d.regions {
 		d.s1 += r.Fences() * r.Area()
 	}
+
+outer:
+	for {
+		ev := s.PollEvent()
+		switch ev.(type) {
+		case *tcell.EventKey:
+			break outer
+		}
+	}
+
+	s.Fini()
 }
 
 func (d *Day12) SolveProblem2() {
@@ -160,7 +186,7 @@ func (d *Day12) vec2FenceMap(vec []int, f FenceMap) FenceMap {
 	return f
 }
 
-func (d *Day12) floodFill(plot *Plot) {
+func (d *Day12) floodFill(plot *Plot, s tcell.Screen) {
 	if plot.visited {
 		return
 	}
@@ -169,11 +195,15 @@ func (d *Day12) floodFill(plot *Plot) {
 	region := plot.region
 	// no region yet? So we found a new one, create it:
 	if region == nil {
-		region = &Region{id: plot.id, plots: make([]*Plot, 0)}
+		region = &Region{id: plot.id, plots: make([]*Plot, 0), color: createRandomColor()}
 		d.regions = append(d.regions, region)
 	}
 	region.plots = append(region.plots, plot)
 	plot.region = region
+
+	s.SetContent(plot.coords.X, plot.coords.Y, '█', nil, tcell.StyleDefault.Foreground(region.color))
+	s.Show()
+	time.Sleep(1 * time.Millisecond)
 
 	// look in all 4 dirs, and check if we still have to flood-fill:
 	for _, vec := range lib.MOVE_VEC_2D_4DIRS {
@@ -185,7 +215,7 @@ func (d *Day12) floodFill(plot *Plot) {
 					// we set the next plot to the same region,
 					// as it belongs to us:
 					nextPlot.region = region
-					d.floodFill(nextPlot)
+					d.floodFill(nextPlot, s)
 				} else {
 					// pass: we do not walk into another region. This is the main loop's
 					// task
@@ -305,4 +335,8 @@ func (d *Day12) countCorners(p *Plot) int {
 	}
 
 	return corners
+}
+
+func createRandomColor() tcell.Color {
+	return tcell.NewRGBColor(int32(rand.Intn(256)), int32(rand.Intn(256)), int32(rand.Intn(256)))
 }
