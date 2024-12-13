@@ -2,5 +2,3 @@ github.com/bylexus/go-stdlib v0.0.0-20241202152938-16dc4197cfba h1:+RnL29Th2dg3R
 github.com/bylexus/go-stdlib v0.0.0-20241202152938-16dc4197cfba/go.mod h1:238Ydq0HtE66jslh8gg4VLlRxBhv8SYqXHBlQM2+tdY=
 golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f h1:XdNn9LlyWAhLVp6P/i8QYBW+hlyhrhei9uErw2B5GJo=
 golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f/go.mod h1:D5SMRVC3C2/4+F/DB1wZsLRnSNimn2Sp/NPsCrsv8ak=
-gonum.org/v1/gonum v0.15.1 h1:FNy7N6OUZVUaWG9pTiD+jlhdQ3lMP+/LcTpJ6+a8sQ0=
-gonum.org/v1/gonum v0.15.1/go.mod h1:eZTZuRFrzu5pcyjN5wJhcIhnUdNijYxX1T2IcrOGY0o=

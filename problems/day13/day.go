@@ -1,10 +1,8 @@
 package day13
 
 import (
-	"cmp"
 	"fmt"
 	"regexp"
-	"slices"
 
 	"alexi.ch/aoc/2024/lib"
 )
@@ -61,76 +59,20 @@ func (d *Day13) Setup() {
 func (d *Day13) SolveProblem1() {
 	d.s1 = 0
 	for _, machine := range d.machines {
-		a := 0
-		matchingResults := make([][]int, 0)
-		maxA := lib.Min(100, lib.Min(machine.X/machine.AX+1, machine.Y/machine.AY+1))
-		for a <= maxA {
-			b := lib.Max((machine.X-a*machine.AX)/machine.BX, (machine.Y-a*machine.AY)/machine.BY)
-			maxB := lib.Min(100, lib.Min(machine.X/machine.BX+1, machine.Y/machine.BY+1))
-			for b <= maxB {
-				if (a*machine.AX+b*machine.BX == machine.X) && (a*machine.AY+b*machine.BY == machine.Y) {
-					matchingResults = append(matchingResults, []int{a, b})
-				}
-				b += 1
-			}
-			a += 1
-		}
-
-		var minRes []int
-		if len(matchingResults) > 0 {
-			minRes = slices.MinFunc(matchingResults, func(a, b []int) int {
-				resA := 3*a[0] + a[1]
-				resB := 3*b[0] + b[1]
-				return cmp.Compare(resA, resB)
-			})
-
-		}
-		res := 0
-		if minRes != nil {
-			res = 3*minRes[0] + minRes[1]
-		}
-		d.s1 += res
-		// fmt.Printf("Machine: %#v, Min costing presses: %#v, tokens: %d\n", machine, minRes, res)
+		a, b := solve(machine)
+		d.s1 += 3*a + b
 	}
 }
 
 func (d *Day13) SolveProblem2() {
 	d.s2 = 0
-	// for _, machine := range d.machines {
-	// 	machine.X += 10000000000000
-	// 	machine.Y += 10000000000000
-	// 	a := 0
-	// 	matchingResults := make([][]int, 0)
-	// 	maxA := lib.Min(machine.X/machine.AX+1, machine.Y/machine.AY+1)
-	// 	for a <= maxA {
-	// 		b := lib.Max((machine.X-a*machine.AX)/machine.BX, (machine.Y-a*machine.AY)/machine.BY)
-	// 		maxB := lib.Min(machine.X/machine.BX+1, machine.Y/machine.BY+1)
-	// 		for b <= maxB {
-	// 			if (a*machine.AX+b*machine.BX == machine.X) && (a*machine.AY+b*machine.BY == machine.Y) {
-	// 				matchingResults = append(matchingResults, []int{a, b})
-	// 			}
-	// 			b += 1
-	// 		}
-	// 		a += 1
-	// 	}
+	for _, machine := range d.machines {
+		machine.X += 10000000000000
+		machine.Y += 10000000000000
 
-	// 	var minRes []int
-	// 	if len(matchingResults) > 0 {
-	// 		minRes = slices.MinFunc(matchingResults, func(a, b []int) int {
-	// 			resA := 3*a[0] + a[1]
-	// 			resB := 3*b[0] + b[1]
-	// 			return cmp.Compare(resA, resB)
-	// 		})
-
-	// 	}
-	// 	res := 0
-	// 	if minRes != nil {
-	// 		res = 3*minRes[0] + minRes[1]
-	// 	}
-	// 	d.s2 += res
-	// 	// fmt.Printf("Machine: %#v, Min costing presses: %#v, tokens: %d\n", machine, minRes, res)
-	// }
-
+		a, b := solve(machine)
+		d.s2 += 3*a + b
+	}
 }
 
 func (d *Day13) Solution1() string {
@@ -139,4 +81,22 @@ func (d *Day13) Solution1() string {
 
 func (d *Day13) Solution2() string {
 	return fmt.Sprintf("%d", d.s2)
+}
+
+// Solves the system of linear equations using Cramer's Rule
+// See https://en.wikipedia.org/wiki/Cramer's_rule#Explicit_formulas_for_small_systems
+func solve(m Machine) (int, int) {
+	A, B := 0, 0
+	if (m.AY*m.BX - m.AX*m.BY) != 0 {
+		B = ((m.AY * m.X) - (m.AX * m.Y)) / (m.AY*m.BX - m.AX*m.BY)
+	}
+	if m.AX != 0 {
+		A = (m.X - (B * m.BX)) / m.AX
+	}
+
+	if ((m.AX*A)+(m.BX*B)) == m.X && ((m.AY*A)+(m.BY*B)) == m.Y {
+		return A, B
+	}
+
+	return 0, 0
 }
