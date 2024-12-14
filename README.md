@@ -89,6 +89,50 @@ Day 12 was a flood-fill problem. I visualized the areas to fill:
 
 ![day12](./day12-flood-the-garden.png)
 
+### Day 13: Linear Equation
+
+I realized that the problem can be solved using a Linear Equation:
+
+Press A x times, B y times moves the arm to the Target X/Y: This means we have a linear system as follows:
+
+We reach X by pressing x*A + y*B = X (moves the X-axis x*AX plus y*BX)
+We reach Y by pressing x*A + y*B = Y (moves the Y-axis x*AY plus y*BY)
+
+so our movements to reach X and Y can be expressed as:
+
+x*AX + y*BX = Prize X
+x*AY + y*BY = Prize Y
+
+I used a substitution approach by using some old-school math substitution:
+
+so we can solve this with a linear system solving approach to find.
+Let's rename the variables a bit to make it simpler:
+
+ax + by = c  (a = Ax, b = Bx, c = Prize X)
+dx + ey = f  (d = Ay, e = By, f = Prize Y)
+
+I'm using a subsitution approach: separate y, then replace y in the other formula:
+y = -(a*x - c)/b
+x = (b*e*(c/b-f/e))/(a*e-b*d)
+So we can first calculate x without any dependency to y, then insert x to the y formula.
+Example:
+
+Input:
+Button A: X+94, Y+34
+Button B: X+22, Y+67
+Prize: X=8400, Y=5400
+
+a = 94, b = 22, c = 8400
+d = 34, e = 67, f = 5400
+--> x = (22*67*(8400/22-5400/67))/(94*67-22*34) = 80
+
+y = -(94*80 - 8400) / 22 = 40
+
+As soon as x and y resolve to a whole number (the number of A-triggers (x) and the number of B-trigger (y)), we found a solution.
+
+This was grea fun, as I could use some old-school math again, and I still got it :-)
+
+
 ### Day 14: Find the tree!
 
 The idea was to find a specific arrangement of pixels after an unknown round of

@@ -2,6 +2,7 @@ package day13
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 
 	"alexi.ch/aoc/2024/lib"
@@ -59,7 +60,7 @@ func (d *Day13) Setup() {
 func (d *Day13) SolveProblem1() {
 	d.s1 = 0
 	for _, machine := range d.machines {
-		a, b := solve(machine)
+		a, b := solve2(machine)
 		d.s1 += 3*a + b
 	}
 }
@@ -70,7 +71,7 @@ func (d *Day13) SolveProblem2() {
 		machine.X += 10000000000000
 		machine.Y += 10000000000000
 
-		a, b := solve(machine)
+		a, b := solve2(machine)
 		d.s2 += 3*a + b
 	}
 }
@@ -83,20 +84,53 @@ func (d *Day13) Solution2() string {
 	return fmt.Sprintf("%d", d.s2)
 }
 
-// Solves the system of linear equations using Cramer's Rule
-// See https://en.wikipedia.org/wiki/Cramer's_rule#Explicit_formulas_for_small_systems
-func solve(m Machine) (int, int) {
-	A, B := 0, 0
-	if (m.AY*m.BX - m.AX*m.BY) != 0 {
-		B = ((m.AY * m.X) - (m.AX * m.Y)) / (m.AY*m.BX - m.AX*m.BY)
-	}
-	if m.AX != 0 {
-		A = (m.X - (B * m.BX)) / m.AX
-	}
+// Solves a linear equation with 2 unknown variables:
+// we have a linear equation system:
+// each button has 2 values that increase the X/Y axis.
+// The Target X and Y are both reached by pressing Button A x times + Button B y times.
 
-	if ((m.AX*A)+(m.BX*B)) == m.X && ((m.AY*A)+(m.BY*B)) == m.Y {
-		return A, B
-	}
+// We reach X by pressing x*A + y*B = X
+// We reach Y by pressing x*A + y*B = Y
+// so our movements to reach X and Y can be expressed as:
+//
+// x*Ax + y*Bx = Prize X
+// x*Ay + y*By = Prize Y
 
+// so we can solve this with a linear system solving approach to find.
+// Let's rename the variables a bit to make it simpler:
+//
+// ax + by = c  (a = Ax, b = Bx, c = Prize X)
+// dx + ey = f  (d = Ay, e = By, f = Prize Y)
+
+// I'm using a subsitution approach: separate y, then replace y in the other formula:
+// y = -(a*x - c)/b
+// x = (b*e*(c/b-f/e))/(a*e-b*d)
+// So we can first calculate x without any dependency to y, then insert x to the y formula.
+// Example:
+//
+// Input:
+// Button A: X+94, Y+34
+// Button B: X+22, Y+67
+// Prize: X=8400, Y=5400
+//
+// a = 94, b = 22, c = 8400
+// d = 34, e = 67, f = 5400
+// --> x = (22*67*(8400/22-5400/67))/(94*67-22*34) = 80
+//
+//	y = -(94*80 - 8400) / 22 = 40
+//
+// --> when both x and y are an integer number, it is a solution.
+func solve2(m Machine) (int, int) {
+	a := float64(m.AX)
+	b := float64(m.BX)
+	c := float64(m.X)
+	d := float64(m.AY)
+	e := float64(m.BY)
+	f := float64(m.Y)
+	x := math.Round((b * e * (c/b - f/e)) / (a*e - b*d))
+	y := math.Round(-(a*x - c) / b)
+	if int(x)*m.AX+int(y)*m.BX == m.X && int(x)*m.AY+int(y)*m.BY == m.Y {
+		return int(x), int(y)
+	}
 	return 0, 0
 }
