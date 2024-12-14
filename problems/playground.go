@@ -20,6 +20,7 @@ func (d *Playground) Setup() {
 
 func (d *Playground) SolveProblem1() {
 	// fn := lib.Memoize(func(a int) int { return 5 })
+	fmt.Printf("-5 %% 2 == %d\n", -5%2)
 }
 
 func (d *Playground) SolveProblem2() {

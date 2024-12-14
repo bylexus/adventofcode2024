@@ -88,3 +88,30 @@ problem_map["XX"] = &dayXX
 Day 12 was a flood-fill problem. I visualized the areas to fill:
 
 ![day12](./day12-flood-the-garden.png)
+
+### Day 14: Find the tree!
+
+The idea was to find a specific arrangement of pixels after an unknown round of
+modifications, here, we were looking for a Christmas Tree!
+
+My first idea was to just output the image after each round, and check them visually, maybe there will be a
+pattern in the pixel movement?
+
+After viewing some hundred ascii art images manually, I gave up: The pixels did just jump around randomly, and
+did not form anything useful.
+
+My second idea was that the tree must be in the center: The first problem indicated that the 
+center lines were important - so I looked for a long center arrangement of the pixels - and could
+not find any image whithin millions of rounds. So that was not it.
+
+So I did it the hard way: I generated real images (pngs) for the first 10'000 rounds, and viewed them
+im the MacOS finder in a grid - and voilà, there it was! deeply buried in some 1000's of images....
+And of course it was NOT a big tree in the center....
+
+So after I know how the tree must look, I could find it programmatically.
+
+Here it is:
+
+![Christmas Tree](./day14_tree_round_6668.png)
+
+That was a fun one!
