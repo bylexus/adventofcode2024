@@ -132,6 +132,8 @@ As soon as x and y resolve to a whole number (the number of A-triggers (x) and t
 
 This was grea fun, as I could use some old-school math again, and I still got it :-)
 
+My paper approach: ![Linear Substitution formula](./day13-linear-equation-replacement-formula.jpg)
+
 
 ### Day 14: Find the tree!
 
