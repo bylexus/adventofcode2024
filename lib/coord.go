@@ -31,3 +31,7 @@ func (c Coord) Manhattan(o Coord) int {
 func (c Coord) Add(o Coord) Coord {
 	return NewCoord3D(c.X+o.X, c.Y+o.Y, c.Z+o.Z)
 }
+
+func (c Coord) AddXY(x, y int) Coord {
+	return NewCoord3D(c.X+x, c.Y+y, c.Z)
+}
