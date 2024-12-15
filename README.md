@@ -161,3 +161,12 @@ Here it is:
 ![Christmas Tree](./day14_tree_round_6668.png)
 
 That was a fun one!
+
+
+### Day 15 - Move the boxes!
+
+A nice robot movement puzzle, with a twist in the 2nd part (boxes to move grow 2 cells wide....)
+
+After some fiddling I got it right, and did a nice anination using [tcell](https://github.com/gdamore/tcell/), too:
+
+![Moving Boxes animation](./day15-moving-robot.mp4)
