@@ -115,7 +115,9 @@ func (d *Day18) SolveProblem2() {
 		}
 		start := lib.NewCoord0()
 		end := lib.NewCoord2D(width-1, height-1)
+
 		d.walkMaze(maze, start, end)
+
 		if maze[end].distanceToStart == -1 {
 			// fmt.Printf("Corrupting entry: %#v\n", coords[len(coords)-1])
 			d.s2 = fmt.Sprintf("%d,%d", coords[len(coords)-1].X, coords[len(coords)-1].Y)
@@ -145,9 +147,9 @@ func (d *Day18) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.
 			unvisited = append(unvisited, entry)
 		}
 	}
-	// sort: by distance to start: lowest entry in front
 	for len(unvisited) > 0 {
-		slices.SortFunc(unvisited, func(a, b *Entry) int {
+		// find the smallest unvisited node
+		act := slices.MinFunc(unvisited, func(a, b *Entry) int {
 			if a.distanceToStart == -1 {
 				return 1
 			}
@@ -156,13 +158,12 @@ func (d *Day18) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.
 			}
 			return a.distanceToStart - b.distanceToStart
 		})
-
-		act := unvisited[0]
-		act.visited = true
 		if act.distanceToStart == -1 {
 			break
 		}
-		unvisited = append([]*Entry{}, unvisited[1:]...)
+		act.visited = true
+
+		unvisited = lib.Splice(unvisited, slices.Index(unvisited, act))
 
 		// update neighbour node's distance:
 		for _, c := range lib.MOVE_VEC_2D_4DIRS {

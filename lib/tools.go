@@ -95,7 +95,7 @@ func Abs[T constraints.Signed](a T) T {
 }
 
 func Splice[T any](slice []T, index int) []T {
-	newSlice := make([]T, 0)
+	newSlice := make([]T, 0, len(slice)-1)
 	for i := 0; i < len(slice); i++ {
 		if i != index {
 			newSlice = append(newSlice, slice[i])
