@@ -139,15 +139,10 @@ func (d *Day18) Solution2() string {
 
 func (d *Day18) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.Coord) {
 	maze[start].distanceToStart = 0
-	unvisited := make([]*Entry, 0)
+	maze[start].visited = false
+	unvisited := []*Entry{maze[start]}
 
-	// all empty tiles are unvisited at the beginning
-	for _, entry := range maze {
-		if entry.tile != '#' {
-			unvisited = append(unvisited, entry)
-		}
-	}
-	for len(unvisited) > 0 {
+	for {
 		// find the smallest unvisited node
 		act := slices.MinFunc(unvisited, func(a, b *Entry) int {
 			if a.distanceToStart == -1 {
@@ -180,8 +175,15 @@ func (d *Day18) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.
 			if nextNode.distanceToStart < 0 || nextNode.distanceToStart > act.distanceToStart+cost {
 				nextNode.distanceToStart = act.distanceToStart + cost
 			}
+			// add unvisited nodes to the list
+			if !nextNode.visited && !slices.Contains(unvisited, nextNode) {
+				unvisited = append(unvisited, nextNode)
+			}
 		}
 		if act.coord == target {
+			break
+		}
+		if len(unvisited) == 0 {
 			break
 		}
 	}

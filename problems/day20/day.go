@@ -197,7 +197,7 @@ func (d *Day20) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.
 				nextNode.distanceToStart = act.distanceToStart + cost
 			}
 			// add unvisited nodes to the list
-			if !nextNode.visited {
+			if !nextNode.visited && !slices.Contains(unvisited, nextNode) {
 				unvisited = append(unvisited, nextNode)
 			}
 		}
