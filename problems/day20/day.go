@@ -47,11 +47,12 @@ func (d *Day20) SolveProblem1() {
 	d.s1 = 0
 
 	maze, start, target := d.buildMaze()
-	d.printMaze(maze, d.width, d.height)
+	// d.printMaze(maze, d.width, d.height)
 	d.walkMaze(maze, start, target)
 
 	noShortcutSolution := maze[target].distanceToStart
 	// d.s1 = noShortcutSolution
+	// return
 
 	// find all stones that can be removed - walls that are only 1 stone thick
 	thinWalls := make([]lib.Coord, 0)
@@ -78,7 +79,7 @@ func (d *Day20) SolveProblem1() {
 	}
 	// fmt.Printf("Thin walls: %#d\n", len(thinWalls))
 
-	for i, thinWall := range thinWalls {
+	for _, thinWall := range thinWalls {
 		maze, start, target := d.buildMaze()
 		maze[thinWall].tile = '.'
 		// d.printMaze(maze, d.width, d.height)
@@ -88,7 +89,7 @@ func (d *Day20) SolveProblem1() {
 		if noShortcutSolution-shortcutSolution >= 100 {
 			d.s1++
 		}
-		fmt.Printf("#%d: No shortcut: %d, shortcut: %d, diff: %d, s1: %d\n", i, noShortcutSolution, shortcutSolution, noShortcutSolution-shortcutSolution, d.s1)
+		// fmt.Printf("#%d: No shortcut: %d, shortcut: %d, diff: %d, s1: %d\n", i, noShortcutSolution, shortcutSolution, noShortcutSolution-shortcutSolution, d.s1)
 	}
 }
 
@@ -153,15 +154,16 @@ func (d *Day20) Solution2() string {
 
 func (d *Day20) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.Coord) {
 	maze[start].distanceToStart = 0
-	unvisited := make([]*Entry, 0)
+	maze[start].visited = false
+	unvisited := []*Entry{maze[start]}
 
-	// all empty tiles are unvisited at the beginning
-	for _, entry := range maze {
-		if entry.tile != '#' {
-			unvisited = append(unvisited, entry)
-		}
-	}
-	for len(unvisited) > 0 {
+	// // all empty tiles are unvisited at the beginning
+	// for _, entry := range maze {
+	// 	if entry.tile != '#' {
+	// 		unvisited = append(unvisited, entry)
+	// 	}
+	// }
+	for {
 		// find the smallest unvisited node
 		act := slices.MinFunc(unvisited, func(a, b *Entry) int {
 			if a.distanceToStart == -1 {
@@ -194,8 +196,15 @@ func (d *Day20) walkMaze(maze map[lib.Coord]*Entry, start lib.Coord, target lib.
 			if nextNode.distanceToStart < 0 || nextNode.distanceToStart > act.distanceToStart+cost {
 				nextNode.distanceToStart = act.distanceToStart + cost
 			}
+			// add unvisited nodes to the list
+			if !nextNode.visited {
+				unvisited = append(unvisited, nextNode)
+			}
 		}
 		if act.coord == target {
+			break
+		}
+		if len(unvisited) == 0 {
 			break
 		}
 	}
