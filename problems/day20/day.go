@@ -3,6 +3,8 @@ package day20
 import (
 	"fmt"
 	"slices"
+	"sync"
+	"sync/atomic"
 
 	"alexi.ch/aoc/2024/lib"
 )
@@ -67,30 +69,35 @@ func (d *Day20) SolveProblem1() {
 			up := maze[lib.NewCoord2D(x, y-1)]
 			down := maze[lib.NewCoord2D(x, y+1)]
 			if left.tile == '.' && right.tile == '.' {
-				if left.distanceToStart >= 0 || right.distanceToStart >= 0 {
-					thinWalls = append(thinWalls, c)
-				}
+				thinWalls = append(thinWalls, c)
 			} else if up.tile == '.' && down.tile == '.' {
-				if up.distanceToStart >= 0 || down.distanceToStart >= 0 {
-					thinWalls = append(thinWalls, c)
-				}
+				thinWalls = append(thinWalls, c)
 			}
 		}
 	}
 	// fmt.Printf("Thin walls: %#d\n", len(thinWalls))
 
-	for _, thinWall := range thinWalls {
-		maze, start, target := d.buildMaze()
-		maze[thinWall].tile = '.'
-		// d.printMaze(maze, d.width, d.height)
-		d.walkMaze(maze, start, target)
+	wg := sync.WaitGroup{}
+	wg.Add(len(thinWalls))
+	atomicCounter := atomic.Int64{}
+	for i, thinWall := range thinWalls {
+		go func(wallNr int, wallCoord lib.Coord) {
+			maze, start, target := d.buildMaze()
+			maze[thinWall].tile = '.'
+			// d.printMaze(maze, d.width, d.height)
+			d.walkMaze(maze, start, target)
 
-		shortcutSolution := maze[target].distanceToStart
-		if noShortcutSolution-shortcutSolution >= 100 {
-			d.s1++
-		}
-		// fmt.Printf("#%d: No shortcut: %d, shortcut: %d, diff: %d, s1: %d\n", i, noShortcutSolution, shortcutSolution, noShortcutSolution-shortcutSolution, d.s1)
+			shortcutSolution := maze[target].distanceToStart
+			if noShortcutSolution-shortcutSolution >= 100 {
+				atomicCounter.Add(1)
+			}
+			// fmt.Printf("#%d: No shortcut: %d, shortcut: %d, diff: %d, s1: %d\n", wallNr, noShortcutSolution, shortcutSolution, noShortcutSolution-shortcutSolution, d.s1)
+			wg.Done()
+
+		}(i+1, thinWall)
 	}
+	wg.Wait()
+	d.s1 = int(atomicCounter.Load())
 }
 
 func (d *Day20) SolveProblem2() {
