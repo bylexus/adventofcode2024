@@ -64,15 +64,14 @@ func (d *Day16) SolveProblem1() {
 	d.s1 = 0
 	// distance to start for start node is, obviously, 0.
 	d.maze[d.start].distanceToStart = 0
+	d.maze[d.start].visited = false
 	d.maze[d.start].facing = 'E'
-	unvisited := make([]*Entry, 0)
-	for _, entry := range d.maze {
-		if entry.tile == '.' {
-			unvisited = append(unvisited, entry)
-		}
-	}
+	unvisited := []*Entry{d.maze[d.start]}
+	entryCosts := make(map[string]int)
+	entryCosts[fmt.Sprintf("%v:%c", d.start, 'E')] = 0
+
 	// sort: by distance to start: lowest entry in front
-	for len(unvisited) > 0 {
+	for {
 		slices.SortFunc(unvisited, func(a, b *Entry) int {
 			if a.distanceToStart == -1 {
 				return 1
@@ -93,11 +92,13 @@ func (d *Day16) SolveProblem1() {
 		// update neighbour node's distance:
 		for _, c := range lib.MOVE_VEC_2D_4DIRS {
 			nextCoord := act.coord.AddXY(c[0], c[1])
-			if d.maze[nextCoord].tile == '#' {
+			nextEntry := d.maze[nextCoord]
+			if nextEntry.tile == '#' {
 				continue
 			}
 			// calc cost to move to next tile, based on act facing
 			cost := 1
+
 			if act.facing == 'E' && c[1] == -1 {
 				cost = 1001
 			}
@@ -135,25 +136,36 @@ func (d *Day16) SolveProblem1() {
 				cost = 2001
 			}
 			// do we need to update the neighbour's number, because it is not yet set or larger than the actual distance?
-			if d.maze[nextCoord].distanceToStart < 0 || d.maze[nextCoord].distanceToStart > d.maze[act.coord].distanceToStart+cost {
-				d.maze[nextCoord].distanceToStart = d.maze[act.coord].distanceToStart + cost
-				if c[0] == -1 {
-					d.maze[nextCoord].facing = 'W'
-				}
-				if c[0] == 1 {
-					d.maze[nextCoord].facing = 'E'
-				}
-				if c[1] == 1 {
-					d.maze[nextCoord].facing = 'S'
-				}
-				if c[1] == -1 {
-					d.maze[nextCoord].facing = 'N'
-				}
+			nextFacing := act.facing
+			if c[0] == -1 {
+				nextFacing = 'W'
+			}
+			if c[0] == 1 {
+				nextFacing = 'E'
+			}
+			if c[1] == 1 {
+				nextFacing = 'S'
+			}
+			if c[1] == -1 {
+				nextFacing = 'N'
+			}
+			// nextEntryCostKey := fmt.Sprintf("%v:%c", nextEntry, nextFacing)
+			// nextEntryCosts := entryCosts[nextEntryCostKey]
+			if nextEntry.distanceToStart < 0 || nextEntry.distanceToStart > act.distanceToStart+cost {
+				nextEntry.distanceToStart = act.distanceToStart + cost
+				nextEntry.facing = nextFacing
+			}
+			// add unvisited nodes to the list
+			if !nextEntry.visited && !slices.Contains(unvisited, nextEntry) {
+				unvisited = append(unvisited, nextEntry)
 			}
 		}
 		// if act.coord == d.target {
 		// 	break
 		// }
+		if len(unvisited) == 0 {
+			break
+		}
 	}
 	// d.printMaze(d.maze)
 	fmt.Printf("end node: %#v\n", d.maze[d.target])
