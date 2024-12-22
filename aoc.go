@@ -30,6 +30,7 @@ import (
 	"alexi.ch/aoc/2024/problems/day19"
 	"alexi.ch/aoc/2024/problems/day20"
 	"alexi.ch/aoc/2024/problems/day21"
+	"alexi.ch/aoc/2024/problems/day22"
 )
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
 		"19":         func() problems.Problem { p := day19.New(); return &p },
 		"20":         func() problems.Problem { p := day20.New(); return &p },
 		"21":         func() problems.Problem { p := day21.New(); return &p },
+		"22":         func() problems.Problem { p := day22.New(); return &p },
 		"playground": func() problems.Problem { p := problems.NewPlayground(); return &p },
 	}
 
