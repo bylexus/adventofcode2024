@@ -8,6 +8,11 @@ import (
 	"alexi.ch/aoc/2024/lib"
 )
 
+const (
+	TYPE_KEYPAD = iota
+	TYPE_DIRECTIONPAD
+)
+
 type Entry struct {
 	tile            rune
 	coord           lib.Coord
@@ -168,6 +173,13 @@ func walkKeypad(pad map[lib.Coord]*Entry, start lib.Coord) {
 			break
 		}
 	}
+
+	dirs := pad[start].keysToStart
+	dirPrefs := []rune{'<', '^', '>', 'v', 'A'}
+	slices.SortFunc(dirs, func(a, b rune) int {
+		return slices.Index(dirPrefs, a) - slices.Index(dirPrefs, b)
+	})
+	pad[start].keysToStart = dirs
 	// d.printMaze(d.maze)
 	// fmt.Printf("end node: %#v\n", d.maze[d.target])
 	// d.s1 = d.maze[d.target].distanceToStart
@@ -205,7 +217,7 @@ func getSequenceForKeys(numKeys map[rune]Keypad, dirKeys map[rune]Keypad, number
 	for _, r := range numbers {
 		keyEntry := getKeyEntry(numKeys[startKey], r)
 		dirs := keyEntry.keysToStart
-		dirPrefs := []rune{'^', '>', '<', 'v', 'A'}
+		dirPrefs := []rune{'^', '>', 'v', '<', 'A'}
 		slices.SortFunc(dirs, func(a, b rune) int {
 			return slices.Index(dirPrefs, a) - slices.Index(dirPrefs, b)
 		})
@@ -221,7 +233,7 @@ func getSequenceForKeys(numKeys map[rune]Keypad, dirKeys map[rune]Keypad, number
 	for _, r := range seq {
 		keyEntry := getKeyEntry(dirKeys[startKey], r)
 		dirs := keyEntry.keysToStart
-		dirPrefs := []rune{'>', 'v', '<', '^', 'A'}
+		dirPrefs := []rune{'^', '>', '<', 'v', 'A'}
 		slices.SortFunc(dirs, func(a, b rune) int {
 			return slices.Index(dirPrefs, a) - slices.Index(dirPrefs, b)
 		})
@@ -237,7 +249,7 @@ func getSequenceForKeys(numKeys map[rune]Keypad, dirKeys map[rune]Keypad, number
 	for _, r := range seq2 {
 		keyEntry := getKeyEntry(dirKeys[startKey], r)
 		dirs := keyEntry.keysToStart
-		dirPrefs := []rune{'>', 'v', '<', '^', 'A'}
+		dirPrefs := []rune{'^', '>', '<', 'v', 'A'}
 		slices.SortFunc(dirs, func(a, b rune) int {
 			return slices.Index(dirPrefs, a) - slices.Index(dirPrefs, b)
 		})
